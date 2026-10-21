@@ -15,3 +15,5 @@ w = np.array([0.2, 0.5, -0.1])
 score = np.dot(x, w)
 print("得分:", score)
 print("矩阵形状:", X.shape)
+
+
