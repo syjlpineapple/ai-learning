@@ -1,6 +1,7 @@
 """
 第31课：正则化--缓解过拟合
 """
+import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, f1_score, precision_score, \
     classification_report
 import jieba
@@ -50,43 +51,36 @@ texts_train, texts_test, y_train, y_test = train_test_split(
     stratify=labels
 )
 
-X_train = vectorizer.fit_transform(texts_train)
-X_test = vectorizer.transform(texts_test)
+x_train = vectorizer.fit_transform(texts_train)
+x_test = vectorizer.transform(texts_test)
 
-# 逻辑分类
-model = LogisticRegression(max_iter=10)
-# 训练模型
-model.fit(X_train, y_train)
-# 预测模型
-y_pred = model.predict(X_test)
+C_values = [10,1,0.1,0.01]
 
-# 预测训练集
-train_pred = model.predict(X_train)
+for c in C_values:
+    model = LogisticRegression(C=c,max_iter=1000)
+    model.fit(x_train, y_train)
 
-for text, pre_label ,label in zip(texts_train,train_pred,y_train):
-    print("文本：",text, "预测：",pre_label,"实际：", label)
+    # 训练集预测
+    train_pred = model.predict(x_train)
+    # 测试机预测
+    y_pred = model.predict(x_test)
 
+    # 计算模型权重整体大小
+    train_acc = accuracy_score(y_train, train_pred)
+    test_acc = accuracy_score(y_test, y_pred)
 
-# 计算训练集准确率
-train_acc = accuracy_score(y_train, train_pred)
+    weight_norm = np.linalg.norm(model.coef_)
 
-# 计算测试集准确率
-test_acc = accuracy_score(y_test, y_pred)
+    print("C参数：", c)
+    print("训练集准确率：", train_acc)
+    print("测试集准确率：", test_acc)
+    print("权重整体大小：", weight_norm)
+    print("--------------------------")
+    # 获取好评概率， model.classes_ 表示模型训练时识别到的所有类别
+    positive_index = list(model.classes_).index(1)
 
-# 计算准确率差距
-gap = train_acc - test_acc
+    # 预测每条测试数据属于各个类别的概率
+    probabilities = model.predict_proba(x_test)[:, positive_index]
 
-print("训练集准确率：", train_acc)
-print("测试集准确率：", test_acc)
-print("准确率差距：", gap)
-
-
-print("测试集预测详情：")
-
-for text, pred, actual in zip(texts_test, y_pred, y_test):
-    print(
-        "评论：", text,
-        "预测：", pred,
-        "实际：", actual,
-        "是否正确：", pred == actual
-    )
+    print("预测标签：", y_pred)
+    print("好评概率：", np.round(probabilities, 4))
