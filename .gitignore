@@ -26,3 +26,9 @@ dailypractice/Day11/history.json
 # 本仓库是公开仓库，以后做练习时如果要用真实的 API Key，
 # 一律写进下面这个被忽略的 .env.local，不要写进上面那些文件。
 .env.local
+
+# ChatGPT 原始导出包绝不入库。
+# 导出的 conversations.json 是账号全量对话，可能含私人内容、
+# 粘贴过的密钥或内网地址，而本仓库是公开仓库。
+# 原始文件放 courseware/_raw/，只把人工审查过的课件成品提交。
+courseware/_raw/
