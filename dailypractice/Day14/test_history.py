@@ -3,7 +3,7 @@ import logging
 import tempfile
 from pathlib import Path
 
-from tests.dailypractice.Day14.history import save_history, load_history
+from dailypractice.Day14.history import save_history, load_history
 
 
 def test_history():

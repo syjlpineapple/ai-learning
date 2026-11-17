@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from history import save_history, load_history
+from dailypractice.Day11.history import save_history, load_history
 
 
 def test_history():

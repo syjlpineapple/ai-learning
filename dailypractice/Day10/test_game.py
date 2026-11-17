@@ -1,4 +1,4 @@
-from game_logic import check_num,parse_guess
+from dailypractice.Day10.game_logic import check_num,parse_guess
 
 if __name__ == "__main__":
     assert check_num(10,20) == "小了"

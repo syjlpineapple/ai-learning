@@ -1,0 +1,42 @@
+[project]
+name = "ai-learning"
+version = "0.1.0"
+description = "Python 工程化与 NLP/机器学习学习记录"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.32",
+    "python-dotenv>=1.0",
+    "jieba>=0.42",
+    "numpy>=2.0",
+    "scikit-learn>=1.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+# 用 pip install -e . 把两条学习线注册成可导入的包，
+# 这样 from dailypractice.Day22.api_client import APIClient 在任何目录下都能用，
+# 不必依赖 pytest 自动往 sys.path 插路径的行为。
+[tool.setuptools.packages.find]
+include = ["dailypractice*", "nlp*"]
+
+[tool.pytest.ini_options]
+testpaths = ["dailypractice", "nlp"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+# 学习项目刻意放宽：只拦真正的错误（F = 未定义名称/未使用导入，E9 = 语法错误），
+# 不启用命名规范（N）、风格（E/W）、现代化改写（UP）、简化建议（SIM）这些规则。
+# 练习代码本来就会写得不漂亮，被几百条风格告警淹没反而看不见真问题。
+# 等某个主题练熟了，想刻意打磨代码风格时，再临时加规则跑一次即可。
+select = ["F", "E9"]

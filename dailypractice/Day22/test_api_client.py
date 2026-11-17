@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 import requests
 
-from tests.dailypractice.Day22.api_client import APIClient
+from dailypractice.Day22.api_client import APIClient
 
 
 @pytest.fixture
@@ -23,7 +23,8 @@ def test_success(api_client):
      }
      api_client.session.post = MagicMock(return_value=mock_response)
      resp = api_client.post("/user_info",{"name":"jack"})
-     assert resp.status_code == 200
+     # post() 返回的是 response.json() 的结果（dict），dict 没有 status_code 属性，
+     # 想验证状态码应该断言在 mock_response 上，这里直接验证 raise_for_status 被调用即可
      mock_response.raise_for_status.assert_called_once()
      api_client.session.post.assert_called_once_with(
          "https://example.com/user_info",

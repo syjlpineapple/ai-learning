@@ -1,8 +1,8 @@
 import tempfile
 from pathlib import Path
 
-from tests.dailypractice.Day12.history import load_history
-from tests.dailypractice.Day12.history import save_history
+from dailypractice.Day12.history import load_history
+from dailypractice.Day12.history import save_history
 
 
 # write_text 写入新内容，默认覆盖原内容

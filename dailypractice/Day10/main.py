@@ -1,6 +1,6 @@
 import random
 
-from game_logic import parse_guess,check_num
+from dailypractice.Day10.game_logic import parse_guess,check_num
 
 if __name__ == "__main__":
     target_num = random.randint(1,100)

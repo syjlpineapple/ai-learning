@@ -3,8 +3,8 @@ from json import JSONDecodeError
 
 from requests import RequestException
 
-from tests.dailypractice.Day20.api_client import post, APIClient
-from tests.dailypractice.Day20.config import load_config
+from dailypractice.Day20.api_client import APIClient
+from dailypractice.Day20.config import load_config
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

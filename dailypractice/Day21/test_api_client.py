@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import requests.exceptions
 
-from tests.dailypractice.Day20.api_client import APIClient
+from dailypractice.Day20.api_client import APIClient
 
 """
 模拟成功

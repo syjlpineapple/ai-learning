@@ -1,0 +1,28 @@
+# 虚拟环境
+.venv/
+venv/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 工具缓存
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+
+# IDE
+.idea/
+.vscode/
+
+# 练习运行时产生的数据文件（不是源码，重跑就会重新生成）
+dailypractice/Day11/history.json
+
+# 真实密钥绝不入库。
+# 注意：Day19/Day20 下已入库的 .env.development / .env.testing / .env.production
+# 里面是 dev-123456 这类假值，仅用于演示多环境加载顺序。
+# 本仓库是公开仓库，以后做练习时如果要用真实的 API Key，
+# 一律写进下面这个被忽略的 .env.local，不要写进上面那些文件。
+.env.local
