@@ -1,0 +1,54 @@
+[project]
+name = "python-engineering-course"
+version = "0.1.0"
+description = "《Python 工程化实战》配套代码"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.32",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+# 每个模块注册成一个包，这样 python -m m02_testing.ch02_01_example 在任何目录下都能跑。
+[tool.setuptools.packages.find]
+include = ["m0*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# 这里刻意不写 addopts = "-q"。
+# -q 和 -v 是一个计数器上的加减：配置里有一个 -q，命令行再加 -v，两者正好抵消，
+# 课程里所有「pytest ... -v」的命令就看不到每条测试的名字了（第 2.3 章实测过）。
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+# 课程代码要求比练习代码严：除了真错误（F、E9），还启用风格（E/W）、
+# 命名（N）、现代化改写（UP）和简化建议（SIM）。
+# 学习者照着抄的代码应该是规范的。
+select = ["F", "E", "W", "N", "UP", "SIM"]
+# E501 行太长交给 line-length 管；练习文件里的 TODO 注释可以长一点。
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+# 课程代码全部带类型注解。这里逐条开检查而不是直接 strict = true，
+# 因为 strict 会连带打开十几个开关，初学者看到报错不知道是哪条规则在管。
+# 第 1.6 章讲类型注解时会解释这几条分别在查什么。
+disallow_untyped_defs = true      # 函数必须有类型注解
+warn_return_any = true            # 返回 Any 时警告
+warn_unused_ignores = true        # 没用的 type: ignore 要清掉
+no_implicit_optional = true       # 默认值 None 的参数必须显式写 | None
+# 练习文件是留给你填的，还没写完时不该被类型检查拦住。
+exclude = ['_exercise\.py$']
