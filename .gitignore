@@ -32,3 +32,7 @@ dailypractice/Day11/history.json
 # 粘贴过的密钥或内网地址，而本仓库是公开仓库。
 # 原始文件放 courseware/_raw/，只把人工审查过的课件成品提交。
 courseware/_raw/
+# 课件网站（VitePress）：依赖与构建产物
+node_modules/
+courseware/.vitepress/cache/
+courseware/.vitepress/dist/

@@ -1,0 +1,213 @@
+/*
+ * 设计说明
+ *   主题：一门「先做题、再讲评」的 Python 工程化课。读者在电脑前，一边开着编辑器一边看。
+ *   颜色：借 pytest 的语义 —— 绿是通过，红是踩坑，黄是提示，灰是跳过。品牌色用偏冷的墨蓝。
+ *   最显眼的只有一处：首页那块 pytest 进度条。其余地方保持安静，让正文和代码好读。
+ */
+
+:root {
+  --pe-paper: #f5f7f9;
+  --pe-ink: #1c2733;
+  --pe-blue: #2a5c8a;
+  --pe-blue-deep: #1f4870;
+  --pe-pass: #1e7b4c;
+  --pe-pass-soft: rgba(30, 123, 76, 0.1);
+  --pe-fail: #b42318;
+  --pe-hint: #8a5a00;
+
+  /* 首页进度条：终端配色，蓝灰底而不是纯黑 */
+  --pe-term-bg: #1c2733;
+  --pe-term-fg: #e6edf3;
+  --pe-term-dim: #8b9bb0;
+  --pe-term-skip: #c3a24a;
+  --pe-term-rule: #33445a;
+  --pe-pass-bright: #5cc58a;
+
+  --vp-c-brand-1: var(--pe-blue);
+  --vp-c-brand-2: var(--pe-blue-deep);
+  --vp-c-brand-3: var(--pe-blue);
+  --vp-c-brand-soft: rgba(42, 92, 138, 0.1);
+
+  --vp-c-bg-alt: var(--pe-paper);
+  --vp-c-text-1: var(--pe-ink);
+
+  --vp-c-tip-1: var(--pe-pass);
+  --vp-c-tip-soft: rgba(30, 123, 76, 0.08);
+  --vp-c-warning-1: var(--pe-hint);
+  --vp-c-warning-soft: rgba(196, 140, 20, 0.12);
+  --vp-c-danger-1: var(--pe-fail);
+  --vp-c-danger-soft: rgba(180, 35, 24, 0.07);
+
+  --vp-font-family-base: "Inter", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --vp-font-family-mono: "Cascadia Code", "JetBrains Mono", "SF Mono", Consolas,
+    "Microsoft YaHei UI", monospace;
+
+  --vp-home-hero-name-color: var(--pe-ink);
+}
+
+.dark {
+  --pe-paper: #18212b;
+  --pe-ink: #e6edf3;
+  --pe-blue: #8db8e0;
+  --pe-blue-deep: #6f9fcc;
+  --pe-pass: #5cc58a;
+  --pe-pass-soft: rgba(92, 197, 138, 0.14);
+  --pe-fail: #f08a7e;
+  --pe-hint: #e2b85c;
+  --pe-term-bg: #0f161d;
+  --pe-term-rule: #2a3a4c;
+
+  --vp-c-bg: #121a22;
+  --vp-c-bg-alt: #18212b;
+  --vp-c-bg-soft: #1d2732;
+  --vp-c-brand-soft: rgba(141, 184, 224, 0.14);
+  --vp-c-white: #0f161d;
+}
+
+/* ---------- 正文排版：中文正文行距大一点，行宽控制在 40 个汉字左右 ---------- */
+
+.vp-doc {
+  font-size: 16px;
+  line-height: 1.85;
+}
+.vp-doc p,
+.vp-doc li {
+  max-width: 44em;
+}
+.vp-doc h1 {
+  font-size: 30px;
+  line-height: 1.35;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.vp-doc h2 {
+  margin-top: 56px;
+  padding-top: 26px;
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+.vp-doc h3 {
+  margin-top: 36px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.vp-doc strong {
+  font-weight: 650;
+  color: var(--vp-c-text-1);
+}
+.vp-doc table {
+  font-size: 14.5px;
+}
+.vp-doc :not(pre) > code {
+  font-size: 0.88em;
+}
+
+/* ---------- 提示框：只留左边一条色带，不做成一张张卡片 ---------- */
+
+.vp-doc .custom-block {
+  border: 0;
+  border-left: 3px solid var(--pe-block-color, var(--vp-c-divider));
+  border-radius: 0 8px 8px 0;
+  padding: 14px 20px;
+}
+.vp-doc .custom-block.tip { --pe-block-color: var(--vp-c-tip-1); }
+.vp-doc .custom-block.warning { --pe-block-color: var(--vp-c-warning-1); }
+.vp-doc .custom-block.danger { --pe-block-color: var(--vp-c-danger-1); }
+.vp-doc .custom-block .custom-block-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* 题目页的提示是折叠的：卡住了才展开 */
+.vp-doc .custom-block.details {
+  border-left-color: var(--pe-hint);
+  background: var(--vp-c-warning-soft);
+}
+.vp-doc .custom-block.details summary {
+  font-weight: 650;
+  color: var(--pe-hint);
+}
+
+/* 原来讲义里的 <details>（自测答案）也给同样的样式 */
+.vp-doc details:not(.custom-block) {
+  margin: 16px 0;
+  padding: 12px 20px;
+  border-left: 3px solid var(--vp-c-divider);
+  border-radius: 0 8px 8px 0;
+  background: var(--vp-c-bg-alt);
+}
+.vp-doc details:not(.custom-block) > summary {
+  cursor: pointer;
+  font-weight: 650;
+  color: var(--vp-c-brand-1);
+}
+
+/* ---------- 首页 ---------- */
+
+.pe-home {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+.pe-home h1 {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--vp-c-text-1);
+}
+.pe-home .lead {
+  margin: 14px 0 34px;
+  max-width: 34em;
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--vp-c-text-2);
+}
+.pe-home .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 30px 0 56px;
+}
+.pe-home .actions a {
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pe-home .actions .primary {
+  background: var(--vp-c-brand-1);
+  color: var(--vp-c-white);
+}
+.pe-home .actions .primary:hover { background: var(--vp-c-brand-2); }
+.pe-home .actions .secondary {
+  border: 1px solid var(--vp-c-divider);
+  color: var(--vp-c-text-1);
+}
+.pe-home .actions .secondary:hover { border-color: var(--vp-c-brand-1); }
+.pe-home .how {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--vp-c-divider);
+}
+.pe-home .how h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--vp-c-text-1);
+}
+.pe-home .how p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+  line-height: 1.75;
+  font-size: 15px;
+}
+@media (max-width: 640px) {
+  .pe-home { padding-top: 32px; }
+  .pe-home h1 { font-size: 27px; }
+  .pe-home .lead { font-size: 16px; }
+}

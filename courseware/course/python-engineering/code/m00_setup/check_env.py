@@ -42,7 +42,7 @@ DEV_TOOLS = {
 # 注意：用 python -m m00_setup.check_env 运行时，当前目录 code/ 本身就在 sys.path 里，
 # 所以没做 pip install -e 也能导入。这一项通过只说明「在 code/ 下用 python -m 没问题」，
 # 不说明直接敲 pytest 也没问题 —— 两者的区别见第 3.1 章第 9 节。
-COURSE_PACKAGES = ["m00_setup", "m01_basics", "m02_testing", "m03_structure"]
+COURSE_PACKAGES = ["m00_setup", "m01_basics", "m02_testing", "m03_structure", "m04_persistence"]
 
 
 @dataclass

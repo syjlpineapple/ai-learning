@@ -144,7 +144,26 @@ B 线 5 个发现（详见 [`nlp/README.md`](nlp/README.md)）：
 | 练习 | 回忆型自测 | **分级动手题 + 参考答案 + 自动验证** |
 | 代码 | 练习状态，含 5 个已知 bug | 修正版，`pytest` / `ruff` / `mypy` 全过 |
 
-### 当前进度：17 / 33 章（3.3 起为精简版）
+### 在浏览器里看（推荐）
+
+课程做成了网站（[VitePress](https://vitepress.dev/)），有上一课/下一课、搜索、深色模式和进度记录：
+
+```powershell
+cd courseware
+npm install          # 第一次需要，装到 courseware/node_modules（已 gitignore）
+npm run docs:dev     # 然后打开终端里显示的地址，默认 http://localhost:5173/
+```
+
+网站配置在 `.vitepress/`，课程目录和顺序只在 `.vitepress/lessons.ts` 一处维护。原始素材、代码仓和学习记录不进网站，指向它们的链接会改成 GitHub 地址。
+
+### 学习方式：每日一题（M4 起）
+
+M4 开始改成「先做题，做完再看讲评和复盘」，题目放在 `course/python-engineering/practice/`。M0 - M3 的 17 章保留为讲义，做题时需要深挖再去查。
+
+- [x] [第 1 题 · 排行榜存盘](course/python-engineering/practice/p01_排行榜存盘.md)（文件读写、with、encoding）
+- [ ] 第 2 - 5 题：JSON 存档、外部数据校验、日志、错误语义
+
+### 当前进度：17 / 33 章讲义 + 1 道题
 
 - [x] 课程总览与 33 章大纲 —— [`course/python-engineering/README.md`](course/python-engineering/README.md)
 - [x] **M0 开始之前**（2 章）：[0.1 这门课怎么学](course/python-engineering/00_01_怎么学.md)、[0.2 环境准备](course/python-engineering/00_02_环境准备.md)
@@ -172,10 +191,10 @@ mypy .          # 零错误
 
 | 检查 | 结果 |
 |---|---|
-| `pytest`（练习未做） | `439 passed, 108 skipped` |
-| `pytest`（**用参考答案填满练习**） | `547 passed`，**0 skipped** |
+| `pytest`（练习未做） | `450 passed, 116 skipped` |
+| `pytest`（**用参考答案填满练习**） | `566 passed`，**0 skipped** |
 | `ruff check .` | `All checks passed!` |
-| `mypy .` | `Success: no issues found in 43 source files` |
+| `mypy .` | `Success: no issues found in 46 source files` |
 
 > 这里的 `pytest` 指在 `code/` 下运行 `python -m pytest`。没做 `pip install -e` 的环境里直接敲 `pytest` 会导入失败，原因见第 3.1 章第 9 节。
 
