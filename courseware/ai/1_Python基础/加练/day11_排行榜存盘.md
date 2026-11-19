@@ -1,0 +1,196 @@
+---
+kind: problem
+outline: [2, 2]   # 右侧目录只列二级标题：讲评里的小标题会提前剧透
+time: 40 分钟
+uses: [open 与 with, encoding, 文件模式 w 和 a, pathlib]
+record:
+  - text: Day11 读写与校验
+    link: https://github.com/syjlpineapple/ai-learning/blob/main/courseware/records/python/Day11.md
+  - text: Day12 那次 'gbk' 报错
+    link: https://github.com/syjlpineapple/ai-learning/blob/main/courseware/records/python/Day12.md
+---
+
+# 第 1 题 · 排行榜存盘
+
+3.2 写的 `GuessGame` 能算出每局用了几次，但程序一关成绩就没了。这题把排行榜存进一个文本文件。
+
+## 题目
+
+打开 [`code/m04_persistence/p01_scoreboard_exercise.py`](../../code/m04_persistence/p01_scoreboard_exercise.py)，实现三个函数：
+
+| 函数 | 做什么 |
+|---|---|
+| `save_scores(path, scores)` | 把 `{名字: 次数}` 写进文件，覆盖原内容，按次数从少到多排 |
+| `load_scores(path)` | 读回 `{名字: 次数}`。文件不存在返回 `{}`；空行跳过；同一个名字出现多次取最小值 |
+| `add_score(path, name, attempts)` | 在文件末尾追加一行，文件不存在就新建 |
+
+文件就是每行一条：
+
+```text
+李四,3
+张三,5
+```
+
+**要求**
+
+1. 打开文件一律用 `with`
+2. `path` 传 `str` 或 `Path` 都要能用
+3. 名字里可能有逗号，比如 `张,三`
+4. 保存到一半出错时，原来的文件内容不能丢
+5. 每一处打开文件都写 `encoding`
+
+**验证**（在 `code/` 目录下）
+
+```powershell
+pytest tests/test_m04.py -k p01 -v
+```
+
+现在是 `11 passed, 8 skipped`，全部做完是 `19 passed`。
+
+::: details 提示：要求 3，名字里有逗号
+`"张,三,4".split(",")` 会切成三段。只想从最右边切一刀，`str` 有一个方法正好做这件事。
+:::
+
+::: details 提示：要求 4，测试说原文件被清空了
+测试会传一个遍历到一半就出错的字典进去。想一想：`open(path, "w")` 这一行执行完的那一刻，文件里还剩什么？要让出错时原文件不受影响，有两种办法：先把要写的内容全部准备好再打开文件；或者先写到另一个文件里，写完再替换。
+:::
+
+::: details 提示：要求 5，我明明写了 encoding，测试还是报 EncodingWarning
+报错信息最后一行会指出是哪一行。`Path.read_text()`、`Path.write_text()` 也要写 `encoding`，它们和 `open()` 是一回事。
+:::
+
+<Reveal>
+
+## 讲评
+
+### 参考答案
+
+```python
+def save_scores(path: str | Path, scores: dict[str, int]) -> None:
+    path = Path(path)
+    ranked = sorted(scores.items(), key=lambda item: (item[1], item[0]))
+    text = "".join(f"{name},{attempts}\n" for name, attempts in ranked)   # ① 先准备好
+    tmp = path.with_name(path.name + ".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:                           # ② 写到临时文件
+        f.write(text)
+    os.replace(tmp, path)                                                 # ③ 写完再替换
+
+
+def load_scores(path: str | Path) -> dict[str, int]:
+    path = Path(path)
+    if not path.exists():
+        return {}
+    best: dict[str, int] = {}
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            name, attempts = line.rsplit(",", 1)
+            n = int(attempts)
+            if name not in best or n < best[name]:
+                best[name] = n
+    return best
+
+
+def add_score(path: str | Path, name: str, attempts: int) -> None:
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(f"{name},{attempts}\n")
+```
+
+`save_scores` 里的 ① 已经足够通过要求 4 的测试。② ③ 再进一步：就算 `f.write` 本身出错（比如磁盘满了），旧文件也只在新文件完整写好之后才会被替换。
+
+### 坑 1：不写 encoding，有时乱码，有时报错
+
+Day12 撞到的就是这个。把 UTF-8 文件交给不写 `encoding` 的 `open()`，在这台中文 Windows 上实测：
+
+```text
+文件内容 "张三,3"      →  '寮犱笁,3\n'                     不报错，读出来是乱码
+文件内容 "欧阳修文,5"  →  UnicodeDecodeError: 'gbk' codec can't decode byte 0xae
+                          in position 8: illegal multibyte sequence
+```
+
+中文 Windows 的默认编码是 `cp936`（也就是 GBK）。「张三」的 UTF-8 字节恰好也是合法的 GBK 字节，于是不报错，悄悄读成「寮犱笁」；「欧阳修文」里有一个字节在 GBK 里不合法，才报出错来。**报错反而是运气好的那种情况。**
+
+你在自己终端里跑，很可能两种都不出现：课程要求设置的 `PYTHONUTF8=1` 让默认编码变成了 UTF-8，把问题盖住了。所以要求 5 的测试会开一个子进程，用 `-X utf8=0` 关掉 UTF-8 模式，再用 `-X warn_default_encoding -W error::EncodingWarning` 把每一处没写 `encoding` 的地方都变成报错：
+
+```text
+EncodingWarning: 'encoding' argument not specified
+```
+
+::: info 版本差异
+[PEP 686](https://peps.python.org/pep-0686/) 让 Python 3.15（2026 年 10 月发布）起默认就是 UTF-8 模式，不再跟系统走。本机装的是 3.13 和 3.11，上面的输出都来自它们，3.15 没有实测。即使换成 3.15，也照样写 `encoding="utf-8"`：代码要在别人的旧版本 Python 上跑，读的文件也可能真是 GBK 编码的。
+:::
+
+### 坑 2：`"w"` 在打开的那一刻就清空了文件
+
+```python
+with open("scores.txt", "w", encoding="utf-8") as f:
+    raise ValueError("写到一半出错")
+```
+
+```text
+出错后文件内容： ''
+```
+
+还一个字都没写，原来的内容就没了。`save_scores` 如果边遍历边写，遍历中途出错，排行榜就只剩一半或者全空。
+
+### 坑 3：不用 `with`，文件一直开着
+
+```python
+f = open("e.txt", "w", encoding="utf-8")
+f.write("张三,3\n")
+```
+
+```text
+关闭前磁盘上的大小： 0
+删除它            → PermissionError: [WinError 32] 另一个程序正在使用此文件，进程无法访问。
+关闭后磁盘上的大小： 10
+```
+
+`write` 之后数据还在内存的缓冲区里，`close()` 时才真正写到磁盘；Windows 上开着的文件也删不掉。`with` 块结束时一定会关闭文件，块里抛了异常也一样（实测 `f.closed` 是 `True`）。
+
+注意关闭后是 **10** 字节：「张三,3」用 UTF-8 是 8 字节，加换行应该是 9。多出来的一个，是 Windows 上的文本模式把 `\n` 写成了 `\r\n`。读回来时又会换回 `\n`，所以平时感觉不到。
+
+### 你的写法会被哪几条测试抓住
+
+用一份典型的初稿跑了一遍：`open(path, "w")` 不写 encoding、直接在原文件上边遍历边写、`line.split(",")`：
+
+```text
+FAILED test_p01_comma_in_name[exercise]                  ValueError: too many values to unpack
+FAILED test_p01_save_failure_keeps_old_file[exercise]    保存失败后原文件被清空了
+FAILED test_p01_encoding_is_explicit[exercise]           有一处 open() 没写 encoding
+3 failed, 5 passed
+```
+
+另外 5 条都过了，包括中文名字的读写。也就是说，**只要你的终端设了 `PYTHONUTF8=1`，漏写 encoding 的代码在本机看起来完全正常。**
+
+## 复盘
+
+::: tip 这题用到的
+- **三种模式**：`"r"` 读，文件不存在抛 `FileNotFoundError`；`"w"` 写，**打开就清空**；`"a"` 追加，文件不存在就新建
+- **`with`**：块结束时一定关闭文件，出异常也一样。不关闭的话，数据可能还没写到磁盘
+- **`encoding="utf-8"` 每次都写**，包括 `Path.read_text()` 和 `Path.write_text()`。不写时用的是系统编码，中文 Windows 上是 GBK
+- **文本模式会转换换行符**：Windows 上写 `\n` 存成 `\r\n`，读的时候换回来
+- **覆盖写之前先准备好内容**；更稳妥的做法是写临时文件，再用 `os.replace` 替换
+- **`Path(path)`** 把 `str` 和 `Path` 统一成 `Path`，之后就能用 `.exists()`、`.with_name()`
+:::
+
+名字里能出现逗号，说明「自己定一个文本格式」迟早要处理转义：名字里有换行怎么办？以后想多存一个字段怎么办？下一题换成 JSON。
+
+## 自测
+
+1. `open(path, "w")` 和 `open(path, "a")` 打开一个不存在的文件，分别会怎样？打开一个已有内容的文件呢？
+2. 同一份 UTF-8 文件，为什么「张三」读成了乱码却不报错，「欧阳修文」却报了 `UnicodeDecodeError`？
+3. 你的代码在本机测试全过，为什么到了同事的 Windows 上可能读出乱码？测试用了什么办法把这个问题提前暴露出来？
+
+<details>
+<summary>参考答案</summary>
+
+1. 文件不存在时，两种模式都会新建文件。文件已有内容时，`"w"` 在打开的那一刻就把它清空，`"a"` 保留原内容、在末尾接着写。
+2. 不写 `encoding` 时，中文 Windows 按 GBK 解码。「张三」的 UTF-8 字节恰好能被 GBK 解成别的汉字（「寮犱笁」），所以不报错；「欧阳修文」里有 GBK 不认识的字节组合，才报错。
+3. 你的终端设了 `PYTHONUTF8=1`，默认编码就是 UTF-8，漏写 `encoding` 也读得对；同事没设的话，默认编码是 GBK。测试开了一个子进程，用 `-X utf8=0` 关掉 UTF-8 模式，再用 `-X warn_default_encoding -W error::EncodingWarning` 让每一处漏写都直接报错。
+
+</details>
+
+</Reveal>
