@@ -1,14 +1,16 @@
 <script setup lang="ts">
-// 每一课正文末尾的「标记为已完成」。首页进度条读的就是这里存的状态。
+// 每一课正文末尾的「标记为已完成」。课表、进度条、左边目录的打勾读的都是这里存的状态。
 import { computed, onMounted } from 'vue'
 import { useData, useRoute } from 'vitepress'
+import { findLesson } from '../lessons'
 import { done, isDone, loadProgress, toggleDone } from './progress'
 
 const route = useRoute()
 const { frontmatter } = useData()
 onMounted(loadProgress)
 
-const visible = computed(() => frontmatter.value.layout !== 'home')
+// 只在课程里的某一课显示，课表页、知识点索引不显示
+const visible = computed(() => frontmatter.value.layout !== 'home' && !!findLesson(route.path))
 const finished = computed(() => {
   void done.value
   return isDone(route.path)
@@ -25,7 +27,7 @@ const finished = computed(() => {
     >
       {{ finished ? '已完成' : '标记为已完成' }}
     </button>
-    <span class="done-note">{{ finished ? '再点一次可以撤销' : '首页进度条会把这一课变成绿点' }}</span>
+    <span class="done-note">{{ finished ? '再点一次可以撤销' : '左边目录会给这一课打勾，课表里也会更新' }}</span>
   </div>
 </template>
 

@@ -26,6 +26,9 @@ dailypractice/Day11/history.json
 # 本仓库是公开仓库，以后做练习时如果要用真实的 API Key，
 # 一律写进下面这个被忽略的 .env.local，不要写进上面那些文件。
 .env.local
+# 从 AI 应用开发 Day 26 起要用真实的大模型密钥（DEEPSEEK_API_KEY），写在根目录的 .env 里。
+# 这一行让所有「新建的」.env 都不会被提交；Day18/.env 是早先已经入库的假值，不受影响。
+.env
 
 # ChatGPT 原始导出包绝不入库。
 # 导出的 conversations.json 是账号全量对话，可能含私人内容、
@@ -36,3 +39,7 @@ courseware/_raw/
 node_modules/
 courseware/.vitepress/cache/
 courseware/.vitepress/dist/
+# 加练第 4 题入口运行时生成的日志文件
+courseware/ai/code/games.log
+# NLP 课用的数据集（如 waimai_10k）：来源和许可不明，只在本地学习用，不提交。下载方法见第 34 课
+nlp/data/

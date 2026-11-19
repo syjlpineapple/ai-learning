@@ -1,21 +1,46 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
-import { sidebar } from './lessons'
+import { courses, REPO, sidebar } from './lessons'
+import { writeReadmes } from './readme'
 
-const REPO = 'https://github.com/syjlpineapple/ai-learning'
-const CODE_ROOT = 'course/python-engineering/code/'
+const CODE_ROOT = 'courseware/ai/code/'
+
+// 启动网站时顺便更新 ai/README.md、nlp/README.md 两份课表（不开网站时在编辑器里看的就是它们）
+writeReadmes(fileURLToPath(new URL('..', import.meta.url)))
+
+// 一个链接指向的东西不是网站页面时（源码、学习记录、原始素材、README），改成 GitHub 地址。
+// repoPath 是相对仓库根目录的路径，比如 nlp/day_5.py、courseware/records/python/Day11.md
+function notAPage(repoPath: string): boolean {
+  if (!repoPath.startsWith('courseware/')) return true                  // 课件目录以外：练习代码
+  if (repoPath.startsWith(CODE_ROOT)) return true                       // 配套代码仓
+  if (/^courseware\/(_raw|tools|records\/python)\//.test(repoPath)) return true  // 素材、脚本、A 线学习记录
+  if (/^courseware\/records\/[^/]+\.md$/.test(repoPath)) return true   // records/ 下的零散文件（旧大纲）
+  if (/(^|\/)README\.md$/.test(repoPath)) return true
+  const ext = /\.([a-z0-9]+)$/i.exec(repoPath)?.[1]?.toLowerCase()
+  return ext !== undefined && ext !== 'md' && ext !== 'html'
+}
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: 'Python 工程化 · 每日一题',
-  description: '从一个猜数字程序开始，一题一题改成能交付的代码。',
+  title: '每日一课',
+  description: 'AI 应用开发与 NLP 两门课，每天各 45 分钟，先动手再讲评。',
   cleanUrls: true,
   lastUpdated: true,
 
-  // 只发布整理好的成品。原始素材、代码仓、学习记录（暂未迁移）不进网站
+  // 只发布课文。原始素材、代码仓、A 线学习记录、README 不进网站。
+  // records/nlp/ 下的 9 篇是 NLP 第 1-33 课的学习记录，暂时作为那门课的附加材料发布
   srcExclude: [
-    '_raw/**', 'tools/**', 'python/**', 'nlp/**', 'README.md',
-    '**/code/**', 'course/python-engineering/README.md',
+    '_raw/**', 'tools/**', 'records/python/**', 'records/*.md', '**/README.md', '**/code/**',
+    'node_modules/**',
+    '**/_*.md',             // 下划线开头的是模板之类的内部文件
   ],
+
+  // 只给网站用的页面（课表页、知识点索引）放在 site/，不和课文混在一起
+  rewrites: {
+    'site/ai.md': 'ai/index.md',
+    'site/nlp.md': 'nlp/index.md',
+    'site/knowledge.md': 'knowledge.md',
+  },
 
   // 指向代码文件和学习记录的链接改成 GitHub 地址（下面的 markdown 配置里处理），
   // 剩下的死链要让构建失败，这样不会悄悄发布一个点了 404 的页面
@@ -23,6 +48,7 @@ export default defineConfig({
 
   markdown: {
     lineNumbers: false,
+    math: true,               // NLP 课里的公式（$...$、$$...$$），用 markdown-it-mathjax3 渲染
     languageAlias: { gitignore: 'ini' },
     container: {
       tipLabel: '复盘',
@@ -38,19 +64,18 @@ export default defineConfig({
       md.renderer.rules.code_inline = (tokens, idx, options, env, self) =>
         inlineCode(tokens, idx, options, env, self).replace(/^<code/, '<code v-pre')
 
-      // 课件里大量链接指向 code/ 下的源码目录和 python/ 下的学习记录。
-      // 它们不是网站页面，统一改写成 GitHub 上的地址。
       const defaultRender = md.renderer.rules.link_open
         ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options))
       md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
         const href = tokens[idx].attrGet('href') ?? ''
         const page: string = env.relativePath ?? ''
         if (href && !/^(https?:|#|mailto:)/.test(href)) {
-          const target = new URL(href, 'file:///' + page).pathname.slice(1)
-          const decoded = decodeURIComponent(target)
-          if (decoded.includes(CODE_ROOT) || /^(python|nlp)\//.test(decoded)) {
-            const isFile = /\.[a-z]+$/i.test(decoded) && !decoded.endsWith('/')
-            tokens[idx].attrSet('href', `${REPO}/${isFile ? 'blob' : 'tree'}/main/courseware/${target}`)
+          // 网站根目录是仓库里的 courseware/，从这里算出链接在仓库里的真实位置
+          const url = new URL(href, 'file:///courseware/' + page)
+          const encoded = url.pathname.slice(1)
+          if (notAPage(decodeURIComponent(encoded))) {
+            const isDir = encoded.endsWith('/')
+            tokens[idx].attrSet('href', `${REPO}/${isDir ? 'tree' : 'blob'}/main/${encoded}${url.hash}`)
             tokens[idx].attrSet('target', '_blank')
           }
         }
@@ -61,9 +86,13 @@ export default defineConfig({
 
   themeConfig: {
     nav: [
-      { text: '每日一题', link: '/course/python-engineering/practice/p01_排行榜存盘' },
-      { text: '讲义', link: '/course/python-engineering/00_01_怎么学' },
-      { text: '代码仓', link: `${REPO}/tree/main/courseware/${CODE_ROOT}` },
+      ...courses.map((c) => ({
+        text: c.title,
+        link: c.home,
+        activeMatch: c.prefixes.map((p) => '^' + p).join('|'),
+      })),
+      { text: '知识点索引', link: '/knowledge' },
+      { text: '代码仓', link: `${REPO}/tree/main/${CODE_ROOT}` },
     ],
     sidebar: sidebar(),
     outline: { level: [2, 3], label: '本页' },

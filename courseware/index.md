@@ -7,29 +7,24 @@ aside: false
 
 <div class="pe-home">
 
-<h1>Python 工程化 · 每日一题</h1>
+<h1>每日一课</h1>
 
-<p class="lead">从一个猜数字程序开始，每天一道题，给它加一样东西：存档、日志、配置、网络请求、测试。先动手做，做完再看讲评和复盘。</p>
+<p class="lead">两门课并行，每天各 45 分钟。一门学怎么把 AI 做成能交付的应用，一门学 NLP 模型背后的原理和训练。一天一页，编号和当时跟 ChatGPT 学的一致。</p>
 
-<CourseRun />
-
-<div class="actions">
-  <a class="primary" href="./course/python-engineering/practice/p01_排行榜存盘">开始第 1 题</a>
-  <a class="secondary" href="./course/python-engineering/00_01_怎么学">翻讲义</a>
-</div>
+<CourseCards />
 
 <div class="how">
   <section>
-    <h2>一道题怎么做</h2>
-    <p>读题目，打开骨架文件写代码，跑 <code>pytest</code> 看结果。卡住了展开提示，提示只给方向不给代码。</p>
+    <h2>一天怎么学</h2>
+    <p>讲概念 → 演示（代码和真实输出）→ 今天的作业 → 小测。作业写完把输出发给我，讲评追加到那一天的末尾。</p>
   </section>
   <section>
-    <h2>做完之后</h2>
-    <p>点「我做完了，看讲评」：参考答案、在本机复现过的坑和真实报错，最后是这题用到的知识点复盘。</p>
+    <h2>加练</h2>
+    <p>AI 应用开发 Day 11-22 后面挂着选做的加练题，带骨架和测试。做完点「我做完了，看讲评」看参考答案和实测过的坑。</p>
   </section>
   <section>
-    <h2>讲义是查的</h2>
-    <p>M0 到 M3 的讲义系统讲了语法、测试、import 和类。做题时遇到想深挖的点，题目里会给链接过去。</p>
+    <h2>不开网站也能学</h2>
+    <p>课文就在 <code>courseware/ai/</code> 和 <code>courseware/nlp/</code>，一个阶段一个文件夹，课表是两个文件夹里的 README.md。在编辑器里按 Ctrl+Shift+V 预览。想查知识点，翻<a href="./knowledge">知识点索引</a>。</p>
   </section>
 </div>
 

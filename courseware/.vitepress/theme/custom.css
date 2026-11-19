@@ -1,6 +1,6 @@
 /*
  * 设计说明
- *   主题：一门「先做题、再讲评」的 Python 工程化课。读者在电脑前，一边开着编辑器一边看。
+ *   主题：两门「先动手、再讲评」的课（AI 应用开发、NLP）。读者在电脑前，一边开着编辑器一边看。
  *   颜色：借 pytest 的语义 —— 绿是通过，红是踩坑，黄是提示，灰是跳过。品牌色用偏冷的墨蓝。
  *   最显眼的只有一处：首页那块 pytest 进度条。其余地方保持安静，让正文和代码好读。
  */
@@ -144,6 +144,66 @@
   color: var(--vp-c-brand-1);
 }
 
+/* ---------- 左边目录 ----------
+ * 每一课一行：左边一格编号（等宽、灰），右边标题；做完的课编号换成绿色的勾。
+ * 阶段名后面跟一个小号的范围（Day 15-22 / 第 24-40 课）。
+ */
+
+.VPSidebar .VPSidebarItem.level-0 > .item .text {
+  font-weight: 700;
+}
+.VPSidebar .pe-range {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--vp-c-text-3);
+}
+.VPSidebar .text:has(.pe-n) {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.VPSidebar .pe-n {
+  flex: 0 0 auto;
+  min-width: 40px;           /* 用 px：做完以后 font-size 变成 0，em 会跟着变成 0。40px 放得下「16-23」 */
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  color: var(--vp-c-text-3);
+  text-align: right;
+}
+.VPSidebar .pe-t { flex: 1; }
+/* 一天的课文还没写、只有加练时，标题后面的小字 */
+.VPSidebar .pe-wip {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--vp-c-text-3);
+}
+/* 挂在某一天下面的加练：比天的那一行缩进一点、字小一点 */
+.VPSidebar .VPSidebarItem.level-2 .pe-t { font-size: 13px; }
+.VPSidebar .VPSidebarItem.level-2 .pe-n { color: var(--pe-hint); }
+.VPSidebar a.pe-done .pe-n {
+  font-size: 0;
+}
+.VPSidebar a.pe-done .pe-n::after {
+  content: "✓";
+  font-family: var(--vp-font-family-base);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pe-pass);
+}
+.VPSidebar a.pe-done .pe-t { color: var(--vp-c-text-2); }
+.VPSidebar a.pe-done.is-active .pe-t,
+.VPSidebar .is-active > .item a.pe-done .pe-t { color: var(--vp-c-brand-1); }
+
+/* 上一课 / 下一课按钮里也是同样的编号 + 标题 */
+.VPDocFooter .pe-n {
+  margin-right: 8px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.85em;
+  color: var(--vp-c-text-3);
+}
+
 /* ---------- 首页 ---------- */
 
 .pe-home {
@@ -191,6 +251,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 28px 40px;
+  margin-top: 56px;
   padding-top: 32px;
   border-top: 1px solid var(--vp-c-divider);
 }
