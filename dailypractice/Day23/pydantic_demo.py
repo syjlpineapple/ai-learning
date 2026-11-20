@@ -1,9 +1,9 @@
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, Field
 
 
 class User(BaseModel):
-    name: str
-    age: int
+    name: str = Field(min_length=2, max_length=20)
+    age: int = Field(ge=0, le=120)
     email: str
 
 user = User(

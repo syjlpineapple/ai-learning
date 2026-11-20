@@ -85,3 +85,32 @@ probabilities = pipeline.predict_proba(texts_test)[:, positive_index]
 print("真实标签：", y_test)
 print("预测标签：", y_pred)
 print("好评概率：", np.round(probabilities, 4))
+
+
+print("\n========== alpha 参数实验 ==========")
+
+for alpha in [0.01, 0.1, 1.0, 10.0, 100.0]:
+
+    model = MultinomialNB(alpha=alpha)
+
+    test_pipeline = Pipeline([
+        ("vectorizer", CountVectorizer(
+            tokenizer=chinese_tokenizer,
+            token_pattern=None
+        )),
+        ("model", model)
+    ])
+
+    test_pipeline.fit(texts_train, y_train)
+
+    train_pred = test_pipeline.predict(texts_train)
+    test_pred = test_pipeline.predict(texts_test)
+
+    train_acc = accuracy_score(y_train, train_pred)
+    test_acc = accuracy_score(y_test, test_pred)
+
+    print(
+        f"alpha={alpha:<6} "
+        f"训练准确率={train_acc:.4f} "
+        f"测试准确率={test_acc:.4f}"
+    )
