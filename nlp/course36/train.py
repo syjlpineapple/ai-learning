@@ -1,4 +1,3 @@
-import jieba
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -7,13 +6,13 @@ from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
-from nlp.course36.data.comments import texts, labels
+from nlp.course36.data.data_reader import texts, labels
 from nlp.course36.tokenizer import chinese_tokenizer
 
 texts_train,texts_test,y_train,y_test = train_test_split(
     texts,
     labels,
-    test_size=0.25,
+    test_size=0.2,
     random_state=42,
     stratify=labels,
 )
@@ -42,6 +41,7 @@ cv = StratifiedKFold(
     random_state=42
 )
 
+
 for name, model in models.items():
     scores = cross_val_score(
         model,
@@ -67,3 +67,25 @@ for name, model in models.items():
 
     # 保存训练好的模型
     joblib.dump(model, f"models/{name}.pkl")
+
+
+    # 找出预测错误的评论
+    errors = []
+
+    for text, true_label, pred_label in zip(
+        texts_test,
+        y_test,
+        predictions
+    ):
+        if true_label != pred_label:
+            errors.append({
+                "评论": text,
+                "真实标签": true_label,
+                "预测标签": pred_label
+            })
+
+    print("\n错误评论数量：", len(errors))
+    print("\n错误案例：")
+
+    for item in errors[:20]:
+        print(item)
